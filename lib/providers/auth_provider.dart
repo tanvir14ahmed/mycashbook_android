@@ -33,14 +33,60 @@ class AuthProvider extends ChangeNotifier {
       await _apiClient.storage.write(key: 'refresh_token', value: refresh);
       
       await getProfile();
-      return null; // Null means success
+      return null; 
     } on DioException catch (e) {
       if (e.response != null) {
-        return e.response?.data['detail'] ?? "Invalid credentials";
+        // Detailed error from server (e.g., "No active account found")
+        final detail = e.response?.data['detail'];
+        if (detail != null) return detail.toString();
+        
+        final errors = e.response?.data;
+        if (errors is Map) {
+           return errors.values.firstWhere((e) => true, orElse: () => "Invalid credentials").toString();
+        }
+        return "Invalid credentials";
       }
-      return "Connection error. Please check your internet.";
+      return "Connection error: ${e.message}";
     } catch (e) {
       return "An unexpected error occurred.";
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<String?> forgotPassword(String email) async {
+    _setLoading(true);
+    try {
+      final response = await _apiClient.post(
+        ApiEndpoints.forgotPassword,
+        data: {'email': email},
+      );
+      return null;
+    } on DioException catch (e) {
+      return e.response?.data['error'] ?? e.response?.data['message'] ?? "Failed to send OTP";
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<String?> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    _setLoading(true);
+    try {
+      await _apiClient.post(
+        ApiEndpoints.resetPassword,
+        data: {
+          'email': email,
+          'otp': otp,
+          'new_password': newPassword,
+        },
+      );
+      return null;
+    } on DioException catch (e) {
+      return e.response?.data['error'] ?? e.response?.data['message'] ?? "Failed to reset password";
     } finally {
       _setLoading(false);
     }

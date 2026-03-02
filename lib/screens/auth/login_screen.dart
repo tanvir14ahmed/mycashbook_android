@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../dashboard/dashboard_screen.dart';
 import 'register_screen.dart';
+import 'forgot_password_screen.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -102,7 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Forgot password TODO
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                      );
                     },
                     child: const Text('Forgot Password?', style: TextStyle(color: Colors.orange)),
                   ),
