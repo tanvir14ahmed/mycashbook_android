@@ -18,11 +18,11 @@ class TransactionModel {
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
     return TransactionModel(
       id: json['id'],
-      amount: (json['amount'] ?? 0.0).toDouble(),
+      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
       type: json['type'],
       note: json['note'] ?? '',
       createdAt: json['created_at'],
-      signAmount: (json['sign_amount'] ?? 0.0).toDouble(),
+      signAmount: double.tryParse(json['sign_amount'].toString()) ?? 0.0,
     );
   }
 }

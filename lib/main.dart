@@ -6,7 +6,18 @@ import 'providers/book_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'screens/splash_screen.dart';
 
-void main() {
+import 'dart:io';
+import 'package:flutter_displaymode/flutter_displaymode.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  if (Platform.isAndroid) {
+    try {
+      await FlutterDisplayMode.setHighRefreshRate();
+    } catch (_) {}
+  }
+  
   runApp(const MyApp());
 }
 

@@ -56,31 +56,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Summary Header
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Colors.orange, Colors.orangeAccent],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5)),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const Text('Total Net Balance', style: TextStyle(color: Colors.white, fontSize: 16)),
-                    const SizedBox(height: 8),
-                    Text(
-                      '৳${totalBalance.toStringAsFixed(2)}',
-                      style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-              
               // Search Bar
               TextField(
                 onChanged: (value) => setState(() => _searchQuery = value),

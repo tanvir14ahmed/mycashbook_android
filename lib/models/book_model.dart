@@ -25,7 +25,7 @@ class BookModel {
       bid: json['bid'] ?? '',
       createdAt: json['created_at'],
       transactionsCount: json['transactions_count'] ?? 0,
-      balance: (json['balance'] ?? 0.0).toDouble(),
+      balance: double.tryParse(json['balance'].toString()) ?? 0.0,
     );
   }
 }
