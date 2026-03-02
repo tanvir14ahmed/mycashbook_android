@@ -2,40 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/book_provider.dart';
-import 'package:intl/intl.dart';
+import '../models/transaction_model.dart';
 
-class AddTransactionDialog extends StatefulWidget {
+class EditTransactionDialog extends StatefulWidget {
   final int bookId;
-  const AddTransactionDialog({super.key, required this.bookId});
+  final TransactionModel transaction;
+  const EditTransactionDialog({super.key, required this.bookId, required this.transaction});
 
   @override
-  State<AddTransactionDialog> createState() => _AddTransactionDialogState();
+  State<EditTransactionDialog> createState() => _EditTransactionDialogState();
 }
 
-class _AddTransactionDialogState extends State<AddTransactionDialog> {
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
-  String _type = 'withdraw';
-  DateTime _selectedDate = DateTime.now();
+class _EditTransactionDialogState extends State<EditTransactionDialog> {
+  late TextEditingController _amountController;
+  late TextEditingController _noteController;
+  late String _type;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountController = TextEditingController(text: widget.transaction.amount.toString());
+    _noteController = TextEditingController(text: widget.transaction.note);
+    _type = widget.transaction.type;
+  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Add Entry'),
+      title: const Text('Edit Entry'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Amount
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(labelText: 'Amount (৳)', prefixIcon: Icon(Icons.money)),
             ),
             const SizedBox(height: 16),
-            
-            // Type
             Row(
               children: [
                 Expanded(
@@ -56,24 +61,6 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
                 ),
               ],
             ),
-            
-            // Date
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.calendar_today),
-              title: Text(DateFormat('dd MMM, yyyy').format(_selectedDate)),
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: _selectedDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime.now(),
-                );
-                if (date != null) setState(() => _selectedDate = date);
-              },
-            ),
-            
-            // Note
             TextField(
               controller: _noteController,
               maxLines: 2,
@@ -85,14 +72,14 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         ElevatedButton(
-          onPressed: _isLoading ? null : _handleSave,
-          child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Save'),
+          onPressed: _isLoading ? null : _handleUpdate,
+          child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Update'),
         ),
       ],
     );
   }
 
-  Future<void> _handleSave() async {
+  Future<void> _handleUpdate() async {
     final amountText = _amountController.text;
     if (amountText.isEmpty) return;
     
@@ -100,12 +87,12 @@ class _AddTransactionDialogState extends State<AddTransactionDialog> {
     if (amount == null) return;
 
     setState(() => _isLoading = true);
-    final success = await Provider.of<TransactionProvider>(context, listen: false).addTransaction(
+    final success = await Provider.of<TransactionProvider>(context, listen: false).updateTransaction(
       bookId: widget.bookId,
+      transactionId: widget.transaction.id,
       amount: amount,
       type: _type,
       note: _noteController.text.trim(),
-      createdAt: DateFormat('yyyy-MM-dd').format(_selectedDate),
     );
     
     if (success && mounted) {

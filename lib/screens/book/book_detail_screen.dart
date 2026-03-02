@@ -36,9 +36,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         title: Text(book.name),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share, color: Colors.orange),
-            onPressed: () {
-              // Share report TODO
+            icon: txProvider.isLoading 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+              : const Icon(Icons.picture_as_pdf, color: Colors.orange),
+            onPressed: () async {
+              final error = await txProvider.downloadReport(widget.bookId, book.name);
+              if (error != null && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+              }
             },
           ),
         ],
@@ -140,6 +145,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         itemCount: txProvider.transactions.length,
                         itemBuilder: (context, index) {
                           return TransactionListItem(
+                            bookId: widget.bookId,
                             transaction: txProvider.transactions[index],
                             onDelete: () => txProvider.deleteTransaction(widget.bookId, txProvider.transactions[index].id),
                           );
