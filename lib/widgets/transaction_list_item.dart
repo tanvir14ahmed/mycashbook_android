@@ -110,7 +110,7 @@ class TransactionListItem extends StatelessWidget {
                                 constraints: const BoxConstraints(),
                                 padding: const EdgeInsets.all(8),
                                 icon: const Icon(Icons.delete_outline, size: 18, color: Colors.blueGrey),
-                                onPressed: _confirmDelete,
+                                onPressed: () => _confirmDelete(context),
                               ),
                             ],
                           ),
