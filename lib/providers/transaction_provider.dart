@@ -96,6 +96,11 @@ class TransactionProvider extends ChangeNotifier {
         },
       );
       return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> updateTransaction({
     required int bookId,
     required int transactionId,
@@ -158,3 +163,4 @@ class TransactionProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+}
