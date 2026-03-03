@@ -94,10 +94,28 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => showDialog(context: context, builder: (_) => AddTransactionDialog(bookId: widget.bookId)),
-                    icon: const Icon(Icons.add_circle_outline),
-                    label: const Text('Add Entry'),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
+                      ),
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => AddTransactionDialog(bookId: widget.bookId),
+                      ),
+                      icon: const Icon(Icons.add_circle_outline, color: Colors.white),
+                      label: const Text('Add Entry', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),

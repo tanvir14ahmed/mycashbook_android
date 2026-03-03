@@ -6,6 +6,7 @@ import '../book/book_detail_screen.dart';
 import '../../widgets/book_card.dart';
 import '../../widgets/add_book_dialog.dart';
 import '../auth/profile_screen.dart';
+import '../auth/login_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -45,7 +46,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => authProvider.logout(),
+            onPressed: () {
+              authProvider.logout();
+              Navigator.pushAndRemoveUntil(
+                context, 
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
+              );
+            },
           ),
         ],
       ),
