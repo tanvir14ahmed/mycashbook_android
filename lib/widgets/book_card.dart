@@ -4,6 +4,7 @@ import '../models/book_model.dart';
 import 'glass_container.dart';
 import 'hover_card.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class BookCard extends StatefulWidget {
   final BookModel book;
@@ -51,7 +52,12 @@ class _BookCardState extends State<BookCard> with SingleTickerProviderStateMixin
         child: GlassContainer(
           borderRadius: 24,
           padding: const EdgeInsets.all(16),
-          opacity: 0.25,
+          opacity: 0.50,
+          gradientColors: const [
+            Color(0xFFFF9800),
+            Color(0xFFE65100),
+          ],
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,7 +134,7 @@ class _BookCardState extends State<BookCard> with SingleTickerProviderStateMixin
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '৳${widget.book.balance.toStringAsFixed(2)}',
+                    '৳${NumberFormat('#,##0.00').format(widget.book.balance)}',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,

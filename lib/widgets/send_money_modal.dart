@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/book_provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'glass_container.dart';
 
 class SendMoneyModal extends StatefulWidget {
   final int senderBookId;
@@ -16,34 +17,53 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
   final _bidController = TextEditingController();
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
-  
+
   bool _isValidating = false;
   bool _isTransferring = false;
   bool _showSuccess = false;
-  
+
   String? _recipientName;
   String? _recipientBookName;
   String? _validatedBid;
 
-  late AnimationController _animationController;
+  late AnimationController _animController;
+  late Animation<double> _scaleAnim;
+  late Animation<double> _fadeAnim;
+
+  late AnimationController _transferAnimController;
   late Animation<double> _bouncingAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
+    // Dialog entry animation
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _scaleAnim = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOutBack),
+    );
+    _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
+    );
+    _animController.forward();
+
+    // Transfer loading animation
+    _transferAnimController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-    
+
     _bouncingAnimation = Tween<double>(begin: 0, end: -30).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _transferAnimController, curve: Curves.easeInOut),
     );
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _animController.dispose();
+    _transferAnimController.dispose();
     _bidController.dispose();
     _amountController.dispose();
     _noteController.dispose();
@@ -52,11 +72,14 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
 
   Future<void> _handleVerify() async {
     final bid = _bidController.text.trim();
-    if (bid.length != 6) return;
+    if (bid.length != 6) {
+      _showError('Please enter a 6-digit BID');
+      return;
+    }
 
     setState(() => _isValidating = true);
     final result = await Provider.of<TransactionProvider>(context, listen: false).validateBid(bid);
-    
+
     if (mounted) {
       setState(() {
         _isValidating = false;
@@ -73,12 +96,18 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
   }
 
   Future<void> _handleTransfer() async {
-    final amount = double.tryParse(_amountController.text);
-    if (amount == null || _validatedBid == null) return;
+    final amountText = _amountController.text.replaceAll(',', '');
+    final amount = double.tryParse(amountText);
+    
+    if (amount == null || amount <= 0) {
+      _showError('Please enter a valid amount');
+      return;
+    }
+    if (_validatedBid == null) return;
 
     setState(() => _isTransferring = true);
     
-    // Play animation for at least 1 second as requested
+    // Play animation for at least 1.5 seconds minimum for visual feedback
     await Future.delayed(const Duration(milliseconds: 1500));
 
     final success = await Provider.of<TransactionProvider>(context, listen: false).transferFunds(
@@ -106,183 +135,340 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+      )
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 20,
-        right: 20,
-        top: 20,
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+      child: AnimatedBuilder(
+        animation: _animController,
+        builder: (context, child) {
+          return FadeTransition(
+            opacity: _fadeAnim,
+            child: ScaleTransition(
+              scale: _scaleAnim,
+              child: child,
+            ),
+          );
+        },
+        child: _isTransferring 
+          ? _buildTransferAnimation() 
+          : _showSuccess 
+            ? _buildSuccessOverlay() 
+            : _buildTransferForm(),
       ),
-      child: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    );
+  }
+
+  Widget _buildTransferForm() {
+    return GlassContainer(
+      opacity: 0.1,
+      borderRadius: 24,
+      padding: const EdgeInsets.all(24),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Send Money',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
-                
-                // BID Input
-                if (_validatedBid == null) ...[
-                  TextField(
-                    controller: _bidController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    decoration: InputDecoration(
-                      labelText: 'Enter Recipient BID',
-                      hintText: '6-digit code',
-                      suffixIcon: IconButton(
-                        icon: _isValidating 
-                          ? const SpinKitRing(color: Colors.orange, size: 20)
-                          : const Icon(Icons.check_circle_outline, color: Colors.orange),
-                        onPressed: _handleVerify,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.send_rounded, color: Colors.orange, size: 20),
                     ),
-                  ),
-                ] else ...[
-                  // Recipient Info Card
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Send Money',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(backgroundColor: Colors.orange, child: Icon(Icons.person, color: Colors.white)),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(_recipientName!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              Text('Book: $_recipientBookName (BID: $_validatedBid)', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                            ],
-                          ),
-                        ),
-                        IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => setState(() => _validatedBid = null)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Amount and Note
-                  TextField(
-                    controller: _amountController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: 'Amount (৳)',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _noteController,
-                    decoration: InputDecoration(
-                      labelText: 'Note (Optional)',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  ElevatedButton(
-                    onPressed: _handleTransfer,
-                    style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
-                    child: const Text('CONFIRM TRANSFER', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-                const SizedBox(height: 30),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close, color: Colors.white54),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                )
               ],
             ),
-          ),
-          
-          // Transferring Animation Overlay
-          if (_isTransferring) _buildTransferAnimation(),
-          
-          // Success Overlay
-          if (_showSuccess) _buildSuccessOverlay(),
-        ],
+            const SizedBox(height: 24),
+            
+            // BID Input
+            if (_validatedBid == null) ...[
+              Text('Recipient Book ID', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 13)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _bidController,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                style: const TextStyle(color: Colors.white, fontSize: 18, letterSpacing: 2),
+                decoration: InputDecoration(
+                  hintText: '######',
+                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.2), letterSpacing: 2),
+                  counterText: "",
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.05),
+                  suffixIcon: IconButton(
+                    icon: _isValidating 
+                      ? const SpinKitRing(color: Colors.orange, size: 20, lineWidth: 2)
+                      : const Icon(Icons.search, color: Colors.orange),
+                    onPressed: _handleVerify,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colors.orange.withOpacity(0.5), width: 1),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isValidating ? null : _handleVerify,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.withOpacity(0.2),
+                    foregroundColor: Colors.orange,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
+                  ),
+                  child: const Text('VERIFY BID', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1)),
+                ),
+              ),
+            ] else ...[
+              // Recipient Info Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: Colors.orange.withOpacity(0.2), 
+                      child: Text(
+                        _recipientName![0].toUpperCase(),
+                        style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                      )
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_recipientName!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                          const SizedBox(height: 2),
+                          Text(
+                            '$_recipientBookName (#$_validatedBid)', 
+                            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit, size: 20, color: Colors.orange),
+                      onPressed: () => setState(() => _validatedBid = null),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Amount Input
+              TextField(
+                controller: _amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                  hintText: '0.00',
+                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.15)),
+                  prefixText: '৳ ',
+                  prefixStyle: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.orange),
+                  border: InputBorder.none,
+                ),
+              ),
+              Divider(color: Colors.orange.withOpacity(0.2)),
+              const SizedBox(height: 16),
+              
+              // Note
+              TextField(
+                controller: _noteController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'What\'s this for?',
+                  hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                  prefixIcon: const Icon(Icons.notes, color: Colors.white54),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.05),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              
+              // Confirm Button
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFF9800), Color(0xFFFF5722)],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.orange.withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: _handleTransfer,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: const Text(
+                    'SEND MONEY',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTransferAnimation() {
-    return Positioned.fill(
-      child: Container(
-        color: Colors.white.withOpacity(0.9),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                // Rotating Halo
-                AnimatedBuilder(
-                  animation: _animationController,
-                  builder: (context, child) {
-                    return Transform.rotate(
-                      angle: _animationController.value * 2 * 3.14,
-                      child: Container(
-                        width: 120,
-                        height: 120,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.orange.withOpacity(0.3), width: 4),
-                        ),
+    return GlassContainer(
+      opacity: 0.1,
+      borderRadius: 24,
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Rotating Halo
+              AnimatedBuilder(
+                animation: _transferAnimController,
+                builder: (context, child) {
+                  return Transform.rotate(
+                    angle: _transferAnimController.value * 2 * 3.14,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.orange.withOpacity(0.3), width: 3),
                       ),
-                    );
-                  },
-                ),
-                // Bouncing Coin
-                AnimatedBuilder(
-                  animation: _bouncingAnimation,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(0, _bouncingAnimation.value),
-                      child: const Icon(Icons.monetization_on, color: Colors.orange, size: 60),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            const Text(
-              'Transferring Money...',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orange),
-            ),
-          ],
-        ),
+                    ),
+                  );
+                },
+              ),
+              // Bouncing Coin
+              AnimatedBuilder(
+                animation: _bouncingAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _bouncingAnimation.value),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: Colors.orange,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: Colors.orangeAccent, blurRadius: 10, spreadRadius: 2)
+                        ]
+                      ),
+                      child: const Text('৳', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          const Text(
+            'Transferring...',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.orangeAccent),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Securing transaction',
+            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5)),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildSuccessOverlay() {
-    return Positioned.fill(
-      child: Container(
-        color: Colors.white,
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 100),
-            SizedBox(height: 20),
-            Text(
-              'Transfer Successful!',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green),
+    return GlassContainer(
+      opacity: 0.1,
+      borderRadius: 24,
+      padding: const EdgeInsets.all(40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
+            child: const Icon(Icons.check_circle, color: Colors.greenAccent, size: 80),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Transfer Successful!',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.greenAccent),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Money has been sent to $_recipientName',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.6)),
+          ),
+        ],
       ),
     );
   }

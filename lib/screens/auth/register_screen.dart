@@ -15,9 +15,9 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _displayNameController = TextEditingController();
   String _detectedTimezone = 'UTC';
   bool _obscurePassword = true;
@@ -41,10 +41,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final success = await authProvider.register(
-      username: _usernameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
       displayName: _displayNameController.text.trim(),
@@ -113,20 +119,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 20),
                     
                     TextFormField(
-                      controller: _usernameController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: 'Username',
-                        labelStyle: const TextStyle(color: Colors.grey),
-                        prefixIcon: const Icon(Icons.alternate_email, color: Colors.orange),
-                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
-                      ),
-                      validator: (value) => value!.isEmpty ? 'Enter a username' : null,
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       style: const TextStyle(color: Colors.white),
@@ -157,6 +149,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
                       ),
                       validator: (value) => value!.length < 6 ? 'Password must be at least 6 characters' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      obscureText: _obscurePassword,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.orange),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) return 'Confirm your password';
+                        if (value != _passwordController.text) return 'Passwords do not match';
+                        return null;
+                      },
                     ),
                   ],
                 ),

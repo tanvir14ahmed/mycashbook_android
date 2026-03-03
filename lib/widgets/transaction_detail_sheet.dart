@@ -71,7 +71,7 @@ class TransactionDetailSheet extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '৳${transaction.amount.toStringAsFixed(2)}',
+              '৳${NumberFormat('#,##0.00').format(transaction.amount)}',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 42,

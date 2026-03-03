@@ -142,7 +142,7 @@ class TransactionListItem extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  '${isDeposit ? '+' : '-'}৳${transaction.amount.toStringAsFixed(2)}',
+                                  '${isDeposit ? '+' : '-'}৳${NumberFormat('#,##0.00').format(transaction.amount)}',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,

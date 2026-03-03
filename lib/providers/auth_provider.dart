@@ -93,7 +93,6 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> register({
-    required String username,
     required String email,
     required String password,
     required String displayName,
@@ -104,7 +103,6 @@ class AuthProvider extends ChangeNotifier {
       await _apiClient.post(
         ApiEndpoints.register,
         data: {
-          'username': username,
           'email': email,
           'password': password,
           'display_name': displayName,
