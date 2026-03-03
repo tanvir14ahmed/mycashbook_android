@@ -82,9 +82,7 @@ class TransactionDetailSheet extends StatelessWidget {
             const SizedBox(height: 40),
 
             // Detail List
-            _buildDetailRow('Date', DateFormat('EEEE, dd MMMM yyyy').format(date)),
-            const Divider(color: Colors.white10, height: 32),
-            _buildDetailRow('Time', DateFormat('hh:mm a').format(date)),
+            _buildDetailRow('Date', DateFormat('dd MMMM, yyyy').format(date)),
             const Divider(color: Colors.white10, height: 32),
             _buildDetailRow('Transaction ID', '#TXN${transaction.id.toString().padLeft(6, '0')}'),
             const Divider(color: Colors.white10, height: 32),

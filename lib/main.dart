@@ -23,7 +23,11 @@ void main() async {
 
   if (Platform.isAndroid) {
     try {
-      await FlutterDisplayMode.setHighRefreshRate();
+      final modes = await FlutterDisplayMode.supported;
+      modes.sort((a, b) => b.refreshRate.compareTo(a.refreshRate));
+      if (modes.isNotEmpty) {
+        await FlutterDisplayMode.setPreferredMode(modes.first);
+      }
     } catch (_) {}
   }
   

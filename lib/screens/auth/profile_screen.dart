@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'login_screen.dart';
+import '../../widgets/glass_container.dart';
+import '../../widgets/liquid_transition.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -34,8 +36,17 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
             
-            _buildInfoTile(Icons.alternate_email, 'Username', user.username),
-            _buildInfoTile(Icons.access_time, 'Timezone', user.timezone),
+            GlassContainer(
+              opacity: 0.05,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  _buildInfoTile(Icons.alternate_email, 'Username', user.username),
+                  const Divider(color: Colors.white10),
+                  _buildInfoTile(Icons.access_time, 'Timezone', user.timezone),
+                ],
+              ),
+            ),
             
             const SizedBox(height: 40),
             
@@ -54,7 +65,7 @@ class ProfileScreen extends StatelessWidget {
                 Provider.of<AuthProvider>(context, listen: false).logout();
                 Navigator.pushAndRemoveUntil(
                   context, 
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  SoothingPageTransition(page: const LoginScreen()),
                   (route) => false,
                 );
               },

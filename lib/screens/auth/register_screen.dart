@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'otp_screen.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import '../../widgets/glass_container.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,8 +19,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _displayNameController = TextEditingController();
-  final _timezoneController = TextEditingController(text: 'Asia/Dhaka');
+  String _detectedTimezone = 'UTC';
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initTimezone();
+  }
+
+  Future<void> _initTimezone() async {
+    try {
+      final tz = await FlutterTimezone.getLocalTimezone();
+      setState(() {
+        _detectedTimezone = tz.toString();
+      });
+    } catch (e) {
+      debugPrint('Could not detect timezone: $e');
+    }
+  }
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
@@ -29,7 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       email: _emailController.text.trim(),
       password: _passwordController.text,
       displayName: _displayNameController.text.trim(),
-      timezone: _timezoneController.text.trim(),
+      timezone: _detectedTimezone,
     );
 
     if (!mounted) return;
@@ -74,75 +93,93 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 40),
               
-              TextFormField(
-                controller: _displayNameController,
-                decoration: InputDecoration(
-                  labelText: 'Full Name (Display Name)',
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              GlassContainer(
+                opacity: 0.05,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _displayNameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: const Icon(Icons.person_outline, color: Colors.orange),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
+                      ),
+                      validator: (value) => value!.isEmpty ? 'Enter your name' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    TextFormField(
+                      controller: _usernameController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: const Icon(Icons.alternate_email, color: Colors.orange),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
+                      ),
+                      validator: (value) => value!.isEmpty ? 'Enter a username' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    TextFormField(
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Email Address',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: const Icon(Icons.email_outlined, color: Colors.orange),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
+                      ),
+                      validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
+                    ),
+                    const SizedBox(height: 20),
+                    
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: _obscurePassword,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        prefixIcon: const Icon(Icons.lock_outline, color: Colors.orange),
+                        suffixIcon: IconButton(
+                          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility, color: Colors.grey),
+                          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                        ),
+                        enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+                        focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.orange)),
+                      ),
+                      validator: (value) => value!.length < 6 ? 'Password must be at least 6 characters' : null,
+                    ),
+                  ],
                 ),
-                validator: (value) => value!.isEmpty ? 'Enter your name' : null,
-              ),
-              const SizedBox(height: 20),
-              
-              TextFormField(
-                controller: _usernameController,
-                decoration: InputDecoration(
-                  labelText: 'Username',
-                  prefixIcon: const Icon(Icons.alternate_email),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) => value!.isEmpty ? 'Enter a username' : null,
-              ),
-              const SizedBox(height: 20),
-              
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  labelText: 'Email Address',
-                  prefixIcon: const Icon(Icons.email),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) => !value!.contains('@') ? 'Enter a valid email' : null,
-              ),
-              const SizedBox(height: 20),
-              
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline),
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) => value!.length < 6 ? 'Password must be at least 6 characters' : null,
-              ),
-              const SizedBox(height: 20),
-              
-              TextFormField(
-                controller: _timezoneController,
-                decoration: InputDecoration(
-                  labelText: 'Timezone',
-                  prefixIcon: const Icon(Icons.access_time),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) => value!.isEmpty ? 'Enter timezone' : null,
               ),
               const SizedBox(height: 40),
               
-              ElevatedButton(
-                onPressed: authProvider.isLoading ? null : _handleRegister,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: const LinearGradient(colors: [Color(0xFFFF9800), Color(0xFFFF5722)]),
                 ),
-                child: authProvider.isLoading
-                    ? const SpinKitThreeBounce(color: Colors.white, size: 20)
-                    : const Text('CREATE ACCOUNT', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: ElevatedButton(
+                  onPressed: authProvider.isLoading ? null : _handleRegister,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: authProvider.isLoading
+                      ? const SpinKitThreeBounce(color: Colors.white, size: 20)
+                      : const Text('CREATE ACCOUNT', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
               ),
               const SizedBox(height: 20),
               

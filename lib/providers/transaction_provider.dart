@@ -110,7 +110,7 @@ class TransactionProvider extends ChangeNotifier {
   }) async {
     try {
       await _apiClient.patch(
-        '${ApiEndpoints.transactions(bookId)}$transactionId/',
+        ApiEndpoints.deleteTransaction(transactionId),
         data: {
           'amount': amount,
           'type': type,
@@ -120,6 +120,7 @@ class TransactionProvider extends ChangeNotifier {
       await fetchTransactions(bookId);
       return true;
     } catch (e) {
+      debugPrint('updateTransaction error: $e');
       return false;
     }
   }

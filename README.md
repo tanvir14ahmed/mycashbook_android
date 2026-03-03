@@ -1,32 +1,43 @@
-# MyCashBook - Premium Finance Management App 💎📲
+# MyCashBook — Premium Expense Tracking App 💎📲
 
-MyCashBook is a high-fidelity, state-of-the-art Android application designed for seamless cashbook management. Built with Flutter and powered by a robust Django REST API, it offers a premium user experience with modern design principles like Glassmorphism and liquid-glass aesthetics.
+MyCashBook is a high-fidelity Android application for seamless personal cashbook management. Built with Flutter and powered by a Django REST API, it delivers a premium experience with Glassmorphism design, fluid animations, and real-time financial tracking.
+
+---
 
 ## ✨ Key Features
 
-- **💎 Premium Glass UI:** Experience a "Liquid Glass" interface with sophisticated Glassmorphism effects throughout the app.
-- **📈 Real-time Analytics:** Track your "Deposits" and "Withdrawals" with instant balance calculations.
-- **📄 Professional PDF Reports:** Generate and download professional, bank-style PDF reports directly to your local storage.
-- **💸 P2P Money Transfer:** Integrated Book-to-Book transfer system with unique Book IDs (BID) and fluid animations.
-- **🔐 Secure Authentication:** JWT-based secure sessions with automatic token refreshing and Google/Android Autofill support.
-- **🛠️ Transaction Management:** Effortlessly Add, Edit, and Delete transactions with a modern Modal Bottom Sheet interface.
-- **⚡ High Performance:** Optimized for 120Hz refresh rates for a buttery-smooth experience.
+| Feature | Description |
+|---------|-------------|
+| 💎 **Liquid Glass UI** | Glassmorphism throughout with orange-centric gradients and subtle blur effects |
+| 📊 **Real-time Balance** | Live Deposits & Withdrawals with instant balance calculation on an orange gradient card |
+| 📄 **PDF Reports** | Generate and download professional PDF reports with a cinematic download animation |
+| 💸 **P2P Book Transfer** | Transfer funds between books using unique Book IDs (BID) |
+| 🔐 **Secure Auth** | JWT-based sessions with auto token refresh, autofill support, and daily notification reminders |
+| ✏️ **Full CRUD** | Add, Edit, Delete transactions via modern animated bottom sheets |
+| 🎴 **3D Card Effects** | Touch-responsive 3D tilt effect on Book and Transaction cards |
+| 🔔 **Daily Notifications** | Reminds you to track expenses every morning at 8:00 AM |
+| ⚡ **120Hz Optimized** | Forces the highest available display refresh rate for buttery-smooth scrolling |
+
+---
 
 ## 🛠️ Tech Stack
 
 - **Frontend:** Flutter & Dart
 - **State Management:** Provider
-- **Networking:** Dio (API Client)
-- **Security:** Flutter Secure Storage (JWT)
-- **PDF Engine:** ReportLab (Backend) & Path Provider (Mobile)
+- **Networking:** Dio (REST API Client)
+- **Security:** Flutter Secure Storage (JWT Tokens)
+- **PDF Engine:** ReportLab (Backend), Path Provider & Open Filex (Mobile)
+- **Notification:** Flutter Local Notifications
 - **Backend:** Django, Django REST Framework, MySQL
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Flutter SDK (v3.0.0+)
-- Android Studio / VS Code
+- Android Studio or VS Code
 - An active MyCashBook Backend API
 
 ### Installation
@@ -42,20 +53,61 @@ MyCashBook is a high-fidelity, state-of-the-art Android application designed for
    flutter pub get
    ```
 
-3. **Configure API:**
-   Update the `baseUrl` in `lib/core/api/api_endpoints.dart` to point to your live backend.
+3. **Configure API Endpoint:**
+   Update `lib/core/api/api_endpoints.dart`:
+   ```dart
+   static const String baseUrl = "https://your-backend-url.com/api/v1";
+   ```
 
 4. **Run the app:**
    ```bash
    flutter run
    ```
 
-## 🎨 Branding & Identity
+5. **Build release APK:**
+   ```bash
+   flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols/
+   ```
+   Output: `build/app/outputs/flutter-apk/app-release.apk`
 
-- **Name:** MyCashBook
-- **Icon:** Custom "৳" (Taka) Metallic Wallet Icon
-- **Theme:** Metallic Classic & Titanium Dark Mode
+---
+
+## 🎨 Design System
+
+- **Primary Color:** `#FF9800` (Orange) → `#FF5722` (Deep Orange) gradient
+- **Background:** Dark `#121212` / `#1A1A1A`
+- **Glass Opacity:** 20–25% with blur layers
+- **Typography:** Google Fonts (Inter / Roboto)
+- **Icons:** Material Icons + Custom Assets
+
+---
+
+## 📁 Project Structure
+
+```
+lib/
+├── core/
+│   ├── api/          # API client, endpoints
+│   └── theme/        # App theme (Light/Dark)
+├── models/           # Data models
+├── providers/        # State management (Auth, Books, Transactions)
+├── screens/          # UI screens
+│   ├── auth/         # Login, Register, OTP, Forgot Password
+│   ├── book/         # Book detail screen
+│   └── dashboard/    # Dashboard / Book list
+├── services/         # Notification service
+└── widgets/          # Reusable components (GlassContainer, HoverCard, etc.)
+```
+
+---
+
+## 🔗 Related
+
+- **Backend Repository:** [my_cashbook](https://github.com/tanvir14ahmed/my_cashbook)
+- **Live API:** `https://app.codelab-by-tnv.top/api/v1`
+
+---
 
 ## 📄 License
 
-Developed by Antigravity AI for Tanvir Ahmed. All rights reserved. 2026.
+© 2026 Tanvir Ahmed. All rights reserved.

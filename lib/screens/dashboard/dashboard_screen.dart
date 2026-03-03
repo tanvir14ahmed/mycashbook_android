@@ -10,6 +10,7 @@ import '../auth/login_screen.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:fluttertoast/fluttertoast.dart';
+import '../../widgets/liquid_transition.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -67,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 authProvider.logout();
                 Navigator.pushAndRemoveUntil(
                   context, 
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  SoothingPageTransition(page: const LoginScreen()),
                   (route) => false,
                 );
               },
@@ -84,12 +85,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 // Search Bar
                 TextField(
                   onChanged: (value) => setState(() => _searchQuery = value),
+                  style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     hintText: 'Search books...',
-                    prefixIcon: const Icon(Icons.search),
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                    prefixIcon: const Icon(Icons.search, color: Colors.orange),
                     filled: true,
-                    fillColor: Colors.grey.withOpacity(0.1),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    fillColor: Colors.white.withOpacity(0.05),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.orange.withOpacity(0.3), width: 1),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),

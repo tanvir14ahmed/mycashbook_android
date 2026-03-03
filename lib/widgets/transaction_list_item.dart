@@ -1,5 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import '../models/transaction_model.dart';
+import 'package:intl/intl.dart';
+import 'edit_transaction_dialog.dart';
 import 'transaction_detail_sheet.dart';
 import 'glass_container.dart';
+import 'hover_card.dart';
 
 class TransactionListItem extends StatelessWidget {
   final int bookId;
@@ -61,73 +67,96 @@ class TransactionListItem extends StatelessWidget {
         ),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: GlassContainer(
-            borderRadius: 16,
-            padding: const EdgeInsets.all(0),
-            opacity: 0.05,
-            child: IntrinsicHeight(
-              child: Row(
-                children: [
-                  Container(
-                    width: 4,
-                    decoration: BoxDecoration(
-                      color: isDeposit ? Colors.green : Colors.red,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        bottomLeft: Radius.circular(16),
+          child: HoverCard(
+            tiltAmount: 0.03, // More subtle for list items
+            child: GlassContainer(
+              borderRadius: 16,
+              padding: const EdgeInsets.all(0),
+              opacity: 0.25,
+              child: IntrinsicHeight(
+                child: Stack(
+                  children: [
+                    // Subtle type highlight
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              (isDeposit ? Colors.green : Colors.red).withOpacity(0.05),
+                              Colors.transparent,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: (isDeposit ? Colors.green : Colors.red).withOpacity(0.1),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              isDeposit ? Icons.add : Icons.remove,
-                              color: isDeposit ? Colors.green : Colors.red,
-                              size: 18,
+                    Row(
+                      children: [
+                        Container(
+                          width: 4,
+                          decoration: BoxDecoration(
+                            color: isDeposit ? Colors.green : Colors.red,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(16),
+                              bottomLeft: Radius.circular(16),
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Row(
                               children: [
-                                Text(
-                                  transaction.note.isEmpty ? (isDeposit ? 'Deposit' : 'Withdrawal') : transaction.note,
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: (isDeposit ? Colors.green : Colors.red).withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isDeposit ? Icons.add : Icons.remove,
+                                    color: isDeposit ? Colors.green : Colors.red,
+                                    size: 18,
+                                  ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        transaction.note.isEmpty ? (isDeposit ? 'Deposit' : 'Withdrawal') : transaction.note,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        DateFormat('dd MMM, yyyy').format(date),
+                                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                                 Text(
-                                  DateFormat('dd MMM, yyyy').format(date),
-                                  style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+                                  '${isDeposit ? '+' : '-'}৳${transaction.amount.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: isDeposit ? Colors.green : Colors.red,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          Text(
-                            '${isDeposit ? '+' : '-'}৳${transaction.amount.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: isDeposit ? Colors.green : Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

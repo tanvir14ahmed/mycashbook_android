@@ -20,7 +20,11 @@ class AppTheme {
       primaryColor: primaryOrange,
       colorScheme: ColorScheme.light(
         primary: primaryOrange,
+        onPrimary: Colors.white,
         secondary: accentOrange,
+        onSecondary: Colors.white,
+        secondaryContainer: accentOrange.withOpacity(0.2),
+        onSecondaryContainer: primaryOrange,
         surface: Colors.white,
         background: platinum,
       ),
@@ -31,6 +35,7 @@ class AppTheme {
         foregroundColor: gunmetal,
         centerTitle: true,
         elevation: 0,
+        iconTheme: const IconThemeData(color: primaryOrange),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -50,7 +55,11 @@ class AppTheme {
       primaryColor: primaryOrange,
       colorScheme: ColorScheme.dark(
         primary: primaryOrange,
+        onPrimary: Colors.white,
         secondary: accentOrange,
+        onSecondary: Colors.white,
+        secondaryContainer: accentOrange.withOpacity(0.1),
+        onSecondaryContainer: accentOrange,
         surface: gunmetal,
         background: Colors.black,
       ),
@@ -61,6 +70,7 @@ class AppTheme {
         foregroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
+        iconTheme: IconThemeData(color: primaryOrange),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

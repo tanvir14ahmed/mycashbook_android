@@ -6,6 +6,7 @@ import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../widgets/glass_container.dart';
+import '../../widgets/liquid_transition.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (error == null) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        SoothingPageTransition(page: const DashboardScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
