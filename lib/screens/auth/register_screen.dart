@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.register(
+    final errorMsg = await authProvider.register(
       email: _emailController.text.trim(),
       password: _passwordController.text,
       displayName: _displayNameController.text.trim(),
@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!mounted) return;
 
-    if (success) {
+    if (errorMsg == null) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -68,7 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration failed. Username or email may already exist.')),
+        SnackBar(content: Text('Registration failed: $errorMsg')),
       );
     }
   }

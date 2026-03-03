@@ -92,7 +92,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> register({
+  Future<String?> register({
     required String email,
     required String password,
     required String displayName,
@@ -109,9 +109,16 @@ class AuthProvider extends ChangeNotifier {
           'timezone': timezone,
         },
       );
-      return true;
+      return null;
+    } on DioException catch (e) {
+      if (e.response != null && e.response?.data is Map) {
+        final data = e.response?.data as Map;
+        // Collect all error messages from the backend
+        return data.values.map((v) => v is List ? v.first : v).join("\n");
+      }
+      return "Connection error: ${e.message}";
     } catch (e) {
-      return false;
+      return "An unexpected error occurred.";
     } finally {
       _setLoading(false);
     }
