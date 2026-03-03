@@ -9,9 +9,18 @@ import 'screens/splash_screen.dart';
 import 'dart:io';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 
+import 'services/notification_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize Daily Notifications
+  try {
+    await NotificationService().init();
+  } catch (e) {
+    debugPrint('Notification initialization failed: $e');
+  }
+
   if (Platform.isAndroid) {
     try {
       await FlutterDisplayMode.setHighRefreshRate();

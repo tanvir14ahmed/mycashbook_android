@@ -37,7 +37,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         actions: [
           IconButton(
             icon: txProvider.isLoading 
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.orange)) 
               : const Icon(Icons.picture_as_pdf, color: Colors.orange),
             onPressed: () async {
               final error = await txProvider.downloadReport(widget.bookId, book.name);
@@ -45,6 +45,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
               }
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.blueGrey),
+            onPressed: () => _confirmDeleteBook(context, bookProvider, book.name),
           ),
         ],
       ),
@@ -173,5 +177,39 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         ],
       ),
     );
+  Future<void> _confirmDeleteBook(BuildContext context, BookProvider provider, String bookName) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text('Delete "$bookName"?', style: const TextStyle(color: Colors.white)),
+        content: const Text(
+          'This action cannot be undone. All transactions associated with this book will be permanently deleted.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('CANCEL', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('DELETE', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final success = await provider.deleteBook(widget.bookId);
+      if (success && mounted) {
+        Navigator.pop(context); // Go back to dashboard
+      }
+    }
   }
 }

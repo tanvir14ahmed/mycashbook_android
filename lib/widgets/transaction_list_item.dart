@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-import '../models/transaction_model.dart';
-import 'package:intl/intl.dart';
-import 'edit_transaction_dialog.dart';
+import 'transaction_detail_sheet.dart';
+import 'glass_container.dart';
 
 class TransactionListItem extends StatelessWidget {
   final int bookId;
@@ -18,74 +16,105 @@ class TransactionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDeposit = transaction.type == 'deposit';
+    final date = DateTime.parse(transaction.createdAt);
     
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+    return Dismissible(
+      key: Key('txn_${transaction.id}'),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          // Edit
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => EditTransactionDialog(bookId: bookId, transaction: transaction),
+          );
+          return false; // Don't dismiss
+        } else {
+          // Delete
+          final confirm = await _confirmDelete(context);
+          if (confirm == true) {
+            onDelete();
+            return true;
+          }
+          return false;
+        }
+      },
+      background: _buildSwipeBackground(
+        Alignment.centerLeft,
+        Colors.blue,
+        Icons.edit_outlined,
+        'EDIT',
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: IntrinsicHeight(
-          child: Row(
-            children: [
-              // Indicator Bar
-              Container(
-                width: 6,
-                color: isDeposit ? Colors.green : Colors.red,
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      // Icon
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: (isDeposit ? Colors.green : Colors.red).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isDeposit ? Icons.add : Icons.remove,
-                          color: isDeposit ? Colors.green : Colors.red,
-                          size: 20,
-                        ),
+      secondaryBackground: _buildSwipeBackground(
+        Alignment.centerRight,
+        Colors.red,
+        Icons.delete_outline,
+        'DELETE',
+      ),
+      child: GestureDetector(
+        onTap: () => showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => TransactionDetailSheet(transaction: transaction),
+        ),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: GlassContainer(
+            borderRadius: 16,
+            padding: const EdgeInsets.all(0),
+            opacity: 0.05,
+            child: IntrinsicHeight(
+              child: Row(
+                children: [
+                  Container(
+                    width: 4,
+                    decoration: BoxDecoration(
+                      color: isDeposit ? Colors.green : Colors.red,
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        bottomLeft: Radius.circular(16),
                       ),
-                      const SizedBox(width: 16),
-                      // Details
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              transaction.note.isEmpty ? (isDeposit ? 'Deposit' : 'Withdrawal') : transaction.note,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('dd MMM, yyyy').format(DateTime.parse(transaction.createdAt)),
-                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Amount & Actions
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
                         children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: (isDeposit ? Colors.green : Colors.red).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              isDeposit ? Icons.add : Icons.remove,
+                              color: isDeposit ? Colors.green : Colors.red,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  transaction.note.isEmpty ? (isDeposit ? 'Deposit' : 'Withdrawal') : transaction.note,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  DateFormat('dd MMM, yyyy').format(date),
+                                  style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+                                ),
+                              ],
+                            ),
+                          ),
                           Text(
                             '${isDeposit ? '+' : '-'}৳${transaction.amount.toStringAsFixed(2)}',
                             style: TextStyle(
@@ -94,54 +123,60 @@ class TransactionListItem extends StatelessWidget {
                               color: isDeposit ? Colors.green : Colors.red,
                             ),
                           ),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.all(8),
-                                icon: const Icon(Icons.edit_outlined, size: 18, color: Colors.blueGrey),
-                                onPressed: () => showDialog(
-                                  context: context, 
-                                  builder: (_) => EditTransactionDialog(bookId: bookId, transaction: transaction)
-                                ),
-                              ),
-                              IconButton(
-                                constraints: const BoxConstraints(),
-                                padding: const EdgeInsets.all(8),
-                                icon: const Icon(Icons.delete_outline, size: 18, color: Colors.blueGrey),
-                                onPressed: () => _confirmDelete(context),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  void _confirmDelete(BuildContext context) {
-    showDialog(
+  Widget _buildSwipeBackground(Alignment alignment, Color color, IconData icon, String label) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      alignment: alignment,
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (alignment == Alignment.centerLeft) ...[
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12)),
+          ] else ...[
+            Text(label, style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12)),
+            const SizedBox(width: 8),
+            Icon(icon, color: color, size: 20),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _confirmDelete(BuildContext context) async {
+    return showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Entry?'),
-        content: const Text('This will permanently remove this transaction.'),
+        backgroundColor: const Color(0xFF1E1E1E),
+        title: const Text('Delete Entry?', style: TextStyle(color: Colors.white)),
+        content: const Text('This will permanently remove this transaction from the records.', style: TextStyle(color: Colors.white70)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('CANCEL', style: TextStyle(color: Colors.white54))),
           ElevatedButton(
-            onPressed: () {
-              onDelete();
-              Navigator.pop(ctx);
-            }, 
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red), 
-            child: const Text('Delete')
+            onPressed: () => Navigator.pop(ctx, true), 
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), 
+            child: const Text('DELETE', style: TextStyle(color: Colors.white))
           ),
         ],
       ),

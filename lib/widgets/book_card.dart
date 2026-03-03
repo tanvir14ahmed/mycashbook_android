@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book_model.dart';
+import 'glass_container.dart';
 
 class BookCard extends StatefulWidget {
   final BookModel book;
@@ -31,90 +32,106 @@ class _BookCardState extends State<BookCard> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: widget.onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              // Circle Avatar for Initial
-              CircleAvatar(
-                backgroundColor: Colors.orange.withOpacity(0.1),
-                child: Text(
-                  widget.book.name[0].toUpperCase(),
-                  style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(width: 16),
-              
-              // Book Details
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.book.name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      '${widget.book.transactionsCount} transactions',
-                      style: TextStyle(color: Colors.grey[600], fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Balance and Glowing BID
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '৳${widget.book.balance.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      fontSize: 16,
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: GlassContainer(
+        borderRadius: 24,
+        padding: const EdgeInsets.all(16),
+        opacity: 0.05,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Icon/Circle Avatar
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    widget.book.name[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.orange,
                       fontWeight: FontWeight.bold,
-                      color: widget.book.balance >= 0 ? Colors.green : Colors.red,
+                      fontSize: 18,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  
-                  // Glowing BID Badge
-                  AnimatedBuilder(
-                    animation: _controller,
-                    builder: (context, child) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.orange.withOpacity(0.5 * _controller.value),
-                              blurRadius: 10 * _controller.value,
-                              spreadRadius: 2 * _controller.value,
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          'BID:${widget.book.bid}',
-                          style: const TextStyle(
-                            color: Colors.orange,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
+                ),
+                
+                // Glowing BID Badge
+                AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.4 * _controller.value),
+                            blurRadius: 8 * _controller.value,
+                            spreadRadius: 1 * _controller.value,
                           ),
+                        ],
+                      ),
+                      child: Text(
+                        '#${widget.book.bid}',
+                        style: const TextStyle(
+                          color: Colors.orange,
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
                         ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 12),
+            
+            // Name
+            Text(
+              widget.book.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
-            ],
-          ),
+            ),
+            
+            const Spacer(),
+            
+            // Balance
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '৳${widget.book.balance.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: widget.book.balance >= 0 ? Colors.greenAccent : Colors.redAccent,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${widget.book.transactionsCount} txns',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.4),
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
