@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
@@ -22,13 +23,8 @@ void main() async {
   }
 
   if (Platform.isAndroid) {
-    try {
-      final modes = await FlutterDisplayMode.supported;
-      modes.sort((a, b) => b.refreshRate.compareTo(a.refreshRate));
-      if (modes.isNotEmpty) {
-        await FlutterDisplayMode.setPreferredMode(modes.first);
-      }
-    } catch (_) {}
+    // Set 120Hz / High Refresh Rate as early as possible
+    unawaited(FlutterDisplayMode.setHighRefreshRate().catchError((e) => debugPrint('Display mode error: $e')));
   }
   
   runApp(const MyApp());

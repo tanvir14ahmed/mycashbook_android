@@ -359,55 +359,70 @@ class _BookDetailScreenState extends State<BookDetailScreen>
                   color: Colors.orange,
                   onRefresh: () async {
                     await Provider.of<BookProvider>(context, listen: false).fetchBooks();
-                    await Provider.of<TransactionProvider>(context, listen: false).fetchTransactions(widget.bookId);
+                    await Provider.of<TransactionProvider>(context, listen: false)
+                        .fetchTransactions(widget.bookId);
                   },
-                  child: txProvider.transactions.isEmpty && !txProvider.isLoading
-                      ? LayoutBuilder(
-                          builder: (context, constraints) => ListView(
-                            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                            children: [
-                              Container(
-                                height: constraints.maxHeight,
-                                alignment: Alignment.center,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.receipt_long_outlined,
-                                        color: Colors.white.withOpacity(0.1), size: 64),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      'No transactions yet',
-                                      style: TextStyle(
-                                          color: Colors.white.withOpacity(0.3),
-                                          fontSize: 14),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Tap "Add Entry" to get started',
-                                      style: TextStyle(
-                                          color: Colors.white.withOpacity(0.2),
-                                          fontSize: 12),
-                                    ),
-                                  ],
+                  child: RepaintBoundary(
+                    child: txProvider.transactions.isEmpty && !txProvider.isLoading
+                        ? LayoutBuilder(
+                            builder: (context, constraints) => ListView(
+                              physics: const BouncingScrollPhysics(
+                                  parent: AlwaysScrollableScrollPhysics()),
+                              children: [
+                                Container(
+                                  height: constraints.maxHeight,
+                                  alignment: Alignment.center,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.receipt_long_outlined,
+                                          color: Colors.white.withOpacity(0.1),
+                                          size: 64),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'No transactions yet',
+                                        style: TextStyle(
+                                            color: Colors.white.withOpacity(0.3),
+                                            fontSize: 14),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Tap "Add Entry" to get started',
+                                        style: TextStyle(
+                                            color: Colors.white.withOpacity(0.2),
+                                            fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            physics: const BouncingScrollPhysics(
+                                parent: AlwaysScrollableScrollPhysics()),
+                            padding: const EdgeInsets.only(bottom: 100),
+                            itemCount: txProvider.transactions.length,
+                            itemBuilder: (context, index) {
+                              return TransactionListItem(
+                                bookId: widget.bookId,
+                                transaction: txProvider.transactions[index],
+                                onDelete: () async {
+                                  final success = await txProvider.deleteTransaction(
+                                      widget.bookId,
+                                      txProvider.transactions[index].id);
+                                  if (success) {
+                                    Fluttertoast.showToast(
+                                      msg: "Transaction Deleted Successfully",
+                                      backgroundColor: Colors.red.withOpacity(0.8),
+                                      textColor: Colors.white,
+                                    );
+                                  }
+                                },
+                              );
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                          padding: const EdgeInsets.only(bottom: 100),
-                          itemCount: txProvider.transactions.length,
-                          itemBuilder: (context, index) {
-                            return TransactionListItem(
-                              bookId: widget.bookId,
-                              transaction: txProvider.transactions[index],
-                              onDelete: () => txProvider.deleteTransaction(
-                                  widget.bookId,
-                                  txProvider.transactions[index].id),
-                            );
-                          },
-                        ),
+                  ),
                 ),
               ),
             ],
@@ -422,19 +437,21 @@ class _BookDetailScreenState extends State<BookDetailScreen>
       ),
       floatingActionButton: _isDownloading
           ? null
-          : FloatingActionButton.extended(
-              onPressed: () => showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => AddTransactionDialog(bookId: widget.bookId),
+            : FloatingActionButton.extended(
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => AddTransactionDialog(bookId: widget.bookId),
+                  );
+                },
+                backgroundColor: const Color(0xFFFF9800),
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: const Text('Add Entry',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold)),
               ),
-              backgroundColor: const Color(0xFFFF9800),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Add Entry',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
     );
   }
 

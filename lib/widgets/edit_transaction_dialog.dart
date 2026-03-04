@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/book_provider.dart';
 import '../models/transaction_model.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'glass_container.dart';
 
 class EditTransactionDialog extends StatefulWidget {
@@ -289,6 +290,11 @@ class _EditTransactionDialogState extends State<EditTransactionDialog>
     );
 
     if (success && mounted) {
+      Fluttertoast.showToast(
+        msg: "Transaction Updated Successfully",
+        backgroundColor: Colors.blue.withOpacity(0.8),
+        textColor: Colors.white,
+      );
       await Provider.of<BookProvider>(context, listen: false).fetchBooks();
       Navigator.pop(context);
     } else if (mounted) {

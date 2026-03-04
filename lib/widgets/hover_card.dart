@@ -108,13 +108,15 @@ class _HoverCardState extends State<HoverCard>
             scale: _scale,
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001) // Perspective
-                ..rotateX(_rotateX)
-                ..rotateY(_rotateY),
-              child: widget.child,
+            child: RepaintBoundary(
+              child: Transform(
+                alignment: Alignment.center,
+                transform: Matrix4.identity()
+                  ..setEntry(3, 2, 0.001) // Perspective
+                  ..rotateX(_rotateX)
+                  ..rotateY(_rotateY),
+                child: widget.child,
+              ),
             ),
           ),
         );

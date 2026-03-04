@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/book_provider.dart';
@@ -52,20 +54,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
           );
           return;
         }
-        Navigator.of(context).pop(); // Actually pop if within 2s
+        SystemNavigator.pop(); // Cleanly exit the app
       },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('MyCashBook', style: TextStyle(fontWeight: FontWeight.bold)),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.person_outline, color: Colors.orange),
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+            GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen())),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 12.0),
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.orange.withOpacity(0.1),
+                  backgroundImage: authProvider.profilePhotoPath != null 
+                    ? FileImage(File(authProvider.profilePhotoPath!)) 
+                    : null,
+                  child: authProvider.profilePhotoPath == null 
+                    ? const Icon(Icons.person_outline, color: Colors.orange, size: 22)
+                    : null,
+                ),
+              ),
             ),
             IconButton(
               icon: const Icon(Icons.logout),
               onPressed: () {
                 authProvider.logout();
+                Fluttertoast.showToast(
+                  msg: "Successfully Logged Out",
+                  backgroundColor: Colors.black87,
+                  textColor: Colors.white,
+                );
                 Navigator.pushAndRemoveUntil(
                   context, 
                   SoothingPageTransition(page: const LoginScreen()),
@@ -110,36 +129,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 
                 // Books Grid
                 Expanded(
-                  child: bookProvider.isLoading
-                      ? _buildShimmerLoading()
-                      : filteredBooks.isEmpty
-                          ? const Center(child: Text('No books found.'))
-                          : GridView.builder(
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 16,
-                                mainAxisSpacing: 16,
-                                childAspectRatio: 0.9,
+                  child: RepaintBoundary(
+                    child: bookProvider.isLoading
+                        ? _buildShimmerLoading()
+                        : filteredBooks.isEmpty
+                            ? const Center(child: Text('No books found.'))
+                            : GridView.builder(
+                                physics: const BouncingScrollPhysics(),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.9,
+                                ),
+                                itemCount: filteredBooks.length,
+                                itemBuilder: (context, index) {
+                                  final book = filteredBooks[index];
+                                  return BookCard(
+                                    book: book,
+                                    onTap: () => Navigator.push(
+                                      context, 
+                                      MaterialPageRoute(builder: (_) => BookDetailScreen(bookId: book.id))
+                                    ),
+                                  );
+                                },
                               ),
-                              itemCount: filteredBooks.length,
-                              itemBuilder: (context, index) {
-                                final book = filteredBooks[index];
-                                return BookCard(
-                                  book: book,
-                                  onTap: () => Navigator.push(
-                                    context, 
-                                    MaterialPageRoute(builder: (_) => BookDetailScreen(bookId: book.id))
-                                  ),
-                                );
-                              },
-                            ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => showDialog(context: context, builder: (_) => const AddBookDialog()),
+          onPressed: () {
+            showDialog(context: context, builder: (_) => const AddBookDialog());
+          },
           backgroundColor: Colors.orange,
           child: const Icon(Icons.add, color: Colors.white),
         ),

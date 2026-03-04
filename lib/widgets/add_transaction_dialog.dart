@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/book_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'glass_container.dart';
 
 class AddTransactionDialog extends StatefulWidget {
@@ -305,6 +306,11 @@ class _AddTransactionDialogState extends State<AddTransactionDialog>
     );
 
     if (success && mounted) {
+      Fluttertoast.showToast(
+        msg: "Transaction Added Successfully",
+        backgroundColor: Colors.green.withOpacity(0.8),
+        textColor: Colors.white,
+      );
       await Provider.of<BookProvider>(context, listen: false).fetchBooks();
       Navigator.pop(context);
     } else {

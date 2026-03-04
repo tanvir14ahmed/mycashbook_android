@@ -7,9 +7,11 @@ import '../models/user_model.dart';
 class AuthProvider extends ChangeNotifier {
   final ApiClient _apiClient = ApiClient();
   UserModel? _user;
+  String? _profilePhotoPath;
   bool _isLoading = false;
 
   UserModel? get user => _user;
+  String? get profilePhotoPath => _profilePhotoPath;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
 
@@ -152,11 +154,20 @@ class AuthProvider extends ChangeNotifier {
     try {
       final response = await _apiClient.get(ApiEndpoints.profile);
       _user = UserModel.fromJson(response.data);
+      // Load local profile photo path
+      _profilePhotoPath = await _apiClient.storage.read(key: 'profile_photo_${_user!.id}');
       notifyListeners();
     } catch (e) {
       _user = null;
       notifyListeners();
     }
+  }
+
+  Future<void> updateProfilePhoto(String path) async {
+    if (_user == null) return;
+    _profilePhotoPath = path;
+    await _apiClient.storage.write(key: 'profile_photo_${_user!.id}', value: path);
+    notifyListeners();
   }
 
   Future<void> logout() async {

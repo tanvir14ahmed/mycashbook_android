@@ -4,15 +4,32 @@ import '../../providers/auth_provider.dart';
 import 'login_screen.dart';
 import '../../widgets/glass_container.dart';
 import '../../widgets/liquid_transition.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path;
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthProvider>(context).user;
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.user;
     
     if (user == null) return const Scaffold(body: Center(child: Text('Not logged in')));
+
+    Future<void> pickImage() async {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+      if (pickedFile != null) {
+        final appDir = await getApplicationDocumentsDirectory();
+        final fileName = path.basename(pickedFile.path);
+        final localFile = await File(pickedFile.path).copy('${appDir.path}/$fileName');
+        authProvider.updateProfilePhoto(localFile.path);
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Profile')),
@@ -20,10 +37,38 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.orange,
-              child: Icon(Icons.person, size: 60, color: Colors.white),
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 55,
+                  backgroundColor: Colors.orange.withOpacity(0.2),
+                  child: CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.orange,
+                    backgroundImage: authProvider.profilePhotoPath != null 
+                      ? FileImage(File(authProvider.profilePhotoPath!)) 
+                      : null,
+                    child: authProvider.profilePhotoPath == null 
+                      ? const Icon(Icons.person, size: 60, color: Colors.white)
+                      : null,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: pickImage,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Colors.orange,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             Text(

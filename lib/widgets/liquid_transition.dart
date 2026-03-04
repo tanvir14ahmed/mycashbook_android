@@ -92,11 +92,16 @@ class SoothingPageTransition extends PageRouteBuilder {
   SoothingPageTransition({required this.page}) : super(
     pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      var curve = Curves.easeOutCubic;
+      var curveAnimation = CurvedAnimation(parent: animation, curve: curve);
       return FadeTransition(
-        opacity: animation,
-        child: child,
+        opacity: curveAnimation,
+        child: ScaleTransition(
+          scale: Tween<double>(begin: 0.98, end: 1.0).animate(curveAnimation),
+          child: child,
+        ),
       );
     },
-    transitionDuration: const Duration(milliseconds: 500),
+    transitionDuration: const Duration(milliseconds: 400),
   );
 }
