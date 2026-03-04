@@ -1,113 +1,91 @@
-# MyCashBook — Premium Expense Tracking App 💎📲
+# MyCashBook — Premium Finance Management 💎📲
 
-MyCashBook is a high-fidelity Android application for seamless personal cashbook management. Built with Flutter and powered by a Django REST API, it delivers a premium experience with Glassmorphism design, fluid animations, and real-time financial tracking.
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.11.0%2B-02569B?logo=flutter)](https://flutter.dev)
+[![Platform](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)](https://www.android.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+**MyCashBook** is a high-fidelity, high-performance Android application designed for seamless personal finance tracking. It combines a stunning **Glassmorphism UI** with a robust Django-powered backend to deliver a premium, fluid experience.
 
 ---
 
-## ✨ Key Features
+## ✨ What's New (v1.0.3)
+- 🖼️ **Local Profile Photo**: Upload and persist your profile picture locally on your device.
+- 🚀 **120Hz Ultra-Smooth**: Optimized for high refresh rate displays (120Hz/144Hz) for buttery-smooth scrolling.
+- 🔔 **Action Notifications**: Clear visual feedback (Toasts) for every transaction and logout.
+- 🛠️ **Performance Fixes**: Removed expensive GPU filters and added `RepaintBoundary` for maximum FPS.
+- 🚪 **Clean Exit**: Optimized app exit logic to prevent flickering or black screens.
+
+---
+
+## 💎 Key Features
 
 | Feature | Description |
 |---------|-------------|
-| 💎 **Liquid Glass UI** | Glassmorphism throughout with orange-centric gradients and subtle blur effects |
-| 📊 **Real-time Balance** | Live Deposits & Withdrawals with instant balance calculation on an orange gradient card |
-| 📄 **PDF Reports** | Generate and download professional PDF reports with a cinematic download animation |
-| 💸 **P2P Book Transfer** | Transfer funds between books using unique Book IDs (BID) |
-| 🔐 **Secure Auth** | JWT-based sessions with auto token refresh, autofill support, and daily notification reminders |
-| ✏️ **Full CRUD** | Add, Edit, Delete transactions via modern animated bottom sheets |
-| 🎴 **3D Card Effects** | Touch-responsive 3D tilt effect on Book and Transaction cards |
-| 🔔 **Daily Notifications** | Reminds you to track expenses every morning at 8:00 AM |
-| ⚡ **120Hz Optimized** | Forces the highest available display refresh rate for buttery-smooth scrolling |
+| 🍧 **Liquid Glass UI** | Beautiful Glassmorphism with dynamic orange-silver gradients and micro-animations. |
+| ⚡ **120Hz Optimized** | Hard-coded display mode selection for maximum fluidity on supported devices. |
+| 📊 **Real-time Balance** | Instant calculation of Deposits, Withdrawals, and Net Balance. |
+| 🖼️ **Personalized Profile** | Local avatar upload with path persistence using secure storage. |
+| 📄 **Cinematic PDF Reports** | Generate professional thermal-style reports with animated progress indicators. |
+| 💸 **P2P Book Transfer** | Securely transfer funds between different cashbooks using unique BIDs. |
+| 🔐 **Premium Security** | JWT-based auth, secure token storage, and intelligent session management. |
+| ✏️ **Animated CRUD** | Fluid bottom-sheet interactions for adding and editing transactions. |
+| 🎴 **3D Hover Effects** | Responsive tilt-physics on cards for a tactile, premium feel. |
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Flutter & Dart
-- **State Management:** Provider
-- **Networking:** Dio (REST API Client)
-- **Security:** Flutter Secure Storage (JWT Tokens)
-- **PDF Engine:** ReportLab (Backend), Path Provider & Open Filex (Mobile)
-- **Notification:** Flutter Local Notifications
-- **Backend:** Django, Django REST Framework, MySQL
+- **Framework:** [Flutter](https://flutter.dev) (Dart)
+- **State:** [Provider](https://pub.dev/packages/provider) (Clean architecture)
+- **Networking:** [Dio](https://pub.dev/packages/dio) (API Interceptors & JWT management)
+- **Database:** [MySQL](https://www.mysql.com/) (Backend) / [Secure Storage](https://pub.dev/packages/flutter_secure_storage) (Local)
+- **UI Gems:** [Google Fonts](https://fonts.google.com/), [Shimmer](https://pub.dev/packages/shimmer), [Image Picker](https://pub.dev/packages/image_picker)
+- **Backend:** [Django REST Framework](https://www.django-rest-framework.org/)
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Installation & Setup
 
-### Prerequisites
+### 1. Prerequisites
+- Flutter SDK `^3.11.0`
+- Android API Level 21+
 
-- Flutter SDK (v3.0.0+)
-- Android Studio or VS Code
-- An active MyCashBook Backend API
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/tanvir14ahmed/mycashbook_android.git
-   cd mycashbook_android
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Configure API Endpoint:**
-   Update `lib/core/api/api_endpoints.dart`:
-   ```dart
-   static const String baseUrl = "https://your-backend-url.com/api/v1";
-   ```
-
-4. **Run the app:**
-   ```bash
-   flutter run
-   ```
-
-5. **Build release APK:**
-   ```bash
-   flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols/
-   ```
-   Output: `build/app/outputs/flutter-apk/app-release.apk`
-
----
-
-## 🎨 Design System
-
-- **Primary Color:** `#FF9800` (Orange) → `#FF5722` (Deep Orange) gradient
-- **Background:** Dark `#121212` / `#1A1A1A`
-- **Glass Opacity:** 20–25% with blur layers
-- **Typography:** Google Fonts (Inter / Roboto)
-- **Icons:** Material Icons + Custom Assets
-
----
-
-## 📁 Project Structure
-
+### 2. Clone & Install
+```bash
+git clone https://github.com/tanvir14ahmed/mycashbook_android.git
+cd mycashbook_android
+flutter pub get
 ```
+
+### 3. Build Optimized APK
+For the best performance and smallest size (~19MB), build using split-ABI:
+```bash
+flutter build apk --split-per-abi --release
+```
+Locate your build at: `build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`
+
+---
+
+## 🎨 Design Philosophy
+- **Vibrant & Dark:** A deep metallic background (`#121212`) paired with energetic orange accents.
+- **Isolate & Repaint:** Strategic use of `RepaintBoundary` to maintain 60-120 FPS even during complex scrolling.
+- **Feedback First:** Every action triggers a subtle animation or notification, ensuring the user is never left guessing.
+
+---
+
+## 📂 Project Structure
+```text
 lib/
-├── core/
-│   ├── api/          # API client, endpoints
-│   └── theme/        # App theme (Light/Dark)
-├── models/           # Data models
-├── providers/        # State management (Auth, Books, Transactions)
-├── screens/          # UI screens
-│   ├── auth/         # Login, Register, OTP, Forgot Password
-│   ├── book/         # Book detail screen
-│   └── dashboard/    # Dashboard / Book list
-├── services/         # Notification service
-└── widgets/          # Reusable components (GlassContainer, HoverCard, etc.)
+├── core/         # API Client, Theme Definitions, Endpoints
+├── models/       # Data serialization (User, Book, Transaction)
+├── providers/    # Business Logic & Global State
+├── screens/      # Feature-based UI (Auth, Dashboard, Profile, Book)
+├── services/     # Global Background Services (Notifications)
+└── widgets/      # Custom GlassContainer, HoverCard, Animated Dialogs
 ```
-
----
-
-## 🔗 Related
-
-- **Backend Repository:** [my_cashbook](https://github.com/tanvir14ahmed/my_cashbook)
-- **Live API:** `https://app.codelab-by-tnv.top/api/v1`
 
 ---
 
 ## 📄 License
-
-© 2026 Tanvir Ahmed. All rights reserved.
+© 2026 **Tanvir Ahmed**. All rights reserved. 
+Built with ❤️ for high-performance finance tracking.
