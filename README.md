@@ -86,6 +86,12 @@ lib/
 
 ---
 
+## 🔗 Related
+- **Backend Repository:** [my_cashbook](https://github.com/tanvir14ahmed/my_cashbook)
+- **Live API:** `https://mycashbook.codelab-by-tnv.top/api/v1`
+
+---
+
 ## 📄 License
 © 2026 **Tanvir Ahmed**. All rights reserved. 
 Built with ❤️ for high-performance finance tracking.

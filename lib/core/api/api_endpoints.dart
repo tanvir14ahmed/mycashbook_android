@@ -1,7 +1,7 @@
 class ApiEndpoints {
   // Use 10.0.2.2 for Android Emulator, or your local IP (e.g. 192.168.1.x) for physical device testing
   // For production/real phone usage:
-  static const String baseUrl = "https://app.codelab-by-tnv.top/api/v1";
+  static const String baseUrl = "https://mycashbook.codelab-by-tnv.top/api/v1";
   
   // Auth
   static const String login = "/auth/login/";
