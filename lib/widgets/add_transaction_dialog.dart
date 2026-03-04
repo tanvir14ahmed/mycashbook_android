@@ -76,7 +76,7 @@ class _AddTransactionDialogState extends State<AddTransactionDialog>
           ),
         ),
         child: GlassContainer(
-          opacity: 0.05,
+          opacity: 0.9,
           borderRadius: 32,
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           child: Column(

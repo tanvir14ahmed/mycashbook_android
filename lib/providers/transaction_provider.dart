@@ -137,11 +137,10 @@ class TransactionProvider extends ChangeNotifier {
         }
       }
 
-      final directory = await getExternalStorageDirectory();
-      final downloadsDir = Directory('/storage/emulated/0/Download');
-      final path = downloadsDir.existsSync() 
-          ? '${downloadsDir.path}/${bookName}_report.pdf'
-          : '${directory!.path}/${bookName}_report.pdf';
+      final appDocDir = await getApplicationDocumentsDirectory();
+      // Sanitize book name for filename (remove spaces and special characters)
+      final safeBookName = bookName.replaceAll(RegExp(r'[^\w\s-]'), '').replaceAll(RegExp(r'\s+'), '_');
+      final path = '${appDocDir.path}/${safeBookName}_report.pdf';
 
       final response = await _apiClient.dio.download(
         '${ApiEndpoints.baseUrl}/books/$bookId/report/',
