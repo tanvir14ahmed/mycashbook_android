@@ -10,6 +10,7 @@ class GlassContainer extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final double? width;
   final double? height;
+  final Color baseColor;
 
   const GlassContainer({
     super.key,
@@ -24,6 +25,7 @@ class GlassContainer extends StatelessWidget {
     ],
     this.width,
     this.height,
+    this.baseColor = Colors.white,
   });
 
   @override
@@ -34,7 +36,7 @@ class GlassContainer extends StatelessWidget {
         height: height,
         padding: padding,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(opacity),
+          color: baseColor.withOpacity(opacity),
           borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
             color: Colors.white.withOpacity(0.12),

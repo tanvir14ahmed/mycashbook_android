@@ -86,6 +86,8 @@ class _EditTransactionDialogState extends State<EditTransactionDialog>
         ),
         child: GlassContainer(
           opacity: 0.9,
+          baseColor: const Color(0xFF1A1A1A),
+          gradientColors: [const Color(0xFF2196F3).withOpacity(0.1), const Color(0xFF1A1A1A)],
           borderRadius: 32,
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
           child: Column(
