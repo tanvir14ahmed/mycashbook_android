@@ -21,7 +21,7 @@ class _AddBookDialogState extends State<AddBookDialog> {
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       child: GlassContainer(
-        opacity: 0.9,
+        opacity: 1.0,
         baseColor: const Color(0xFF1E1E1E),
         gradientColors: const [Color(0xFF2C3539), Color(0xFF1E1E1E)],
         borderRadius: 32,

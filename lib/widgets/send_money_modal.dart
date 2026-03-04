@@ -172,7 +172,9 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
 
   Widget _buildTransferForm() {
     return GlassContainer(
-      opacity: 0.1,
+      opacity: 1.0,
+      baseColor: const Color(0xFF1E1E1E),
+      gradientColors: const [Color(0xFF2C3539), Color(0xFF1E1E1E)],
       borderRadius: 24,
       padding: const EdgeInsets.all(24),
       child: SingleChildScrollView(
@@ -376,7 +378,9 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
 
   Widget _buildTransferAnimation() {
     return GlassContainer(
-      opacity: 0.1,
+      opacity: 1.0,
+      baseColor: const Color(0xFF1E1E1E),
+      gradientColors: const [Color(0xFF2C3539), Color(0xFF1E1E1E)],
       borderRadius: 24,
       padding: const EdgeInsets.all(40),
       child: Column(
@@ -442,7 +446,9 @@ class _SendMoneyModalState extends State<SendMoneyModal> with TickerProviderStat
 
   Widget _buildSuccessOverlay() {
     return GlassContainer(
-      opacity: 0.1,
+      opacity: 1.0,
+      baseColor: const Color(0xFF1E1E1E),
+      gradientColors: const [Color(0xFF2C3539), Color(0xFF1E1E1E)],
       borderRadius: 24,
       padding: const EdgeInsets.all(40),
       child: Column(
