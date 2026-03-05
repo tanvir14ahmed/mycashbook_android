@@ -20,11 +20,12 @@ class _AddBookDialogState extends State<AddBookDialog> {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: GlassContainer(
-        opacity: 1.0,
-        baseColor: const Color(0xFF1E1E1E),
-        gradientColors: const [Color(0xFF2C3539), Color(0xFF1E1E1E)],
-        borderRadius: 32,
+      child: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E1E1E),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+        ),
         padding: const EdgeInsets.all(24),
         child: TweenAnimationBuilder<double>(
           tween: Tween(begin: 0.0, end: 1.0),
