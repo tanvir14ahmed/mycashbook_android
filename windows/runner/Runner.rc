@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.tanvir.mycashbook" "\0"
-            VALUE "FileDescription", "my_cashbook_android" "\0"
+            VALUE "FileDescription", "MyCashBook" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "my_cashbook_android" "\0"
+            VALUE "InternalName", "MyCashBook" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.tanvir.mycashbook. All rights reserved." "\0"
-            VALUE "OriginalFilename", "my_cashbook_android.exe" "\0"
-            VALUE "ProductName", "my_cashbook_android" "\0"
+            VALUE "OriginalFilename", "MyCashBook.exe" "\0"
+            VALUE "ProductName", "MyCashBook" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
